@@ -54,7 +54,7 @@ async fn main() -> Result<(), tokio::io::Error> {
 
     // Finishing the boilerplate with a busy loop to actually handle the stream
     while let Some(streamer_message) = stream.recv().await {
-        handle_streamer_message(streamer_message, opts.accounts.clone()).await;
+        handle_streamer_message(streamer_message, &opts.accounts).await;
     }
 
     Ok(())
@@ -66,14 +66,14 @@ async fn main() -> Result<(), tokio::io::Error> {
 /// in each block.
 async fn handle_streamer_message(
     streamer_message: near_lake_framework::near_indexer_primitives::StreamerMessage,
-    watching_list: Vec<AccountId>,
+    watching_list: &[AccountId],
 ) {
     // StateChanges we are looking for can be found in each shard, so we iterate over available shards
     for shard in streamer_message.shards {
         for state_change in shard.state_changes {
             // We want to print the block height and
             // change type if the StateChange affects one of the accounts we are watching for
-            if is_change_watched(&state_change, &watching_list) {
+            if is_change_watched(&state_change, watching_list) {
                 // We convert it to JSON in order to show it is possible
                 // also, it is easier to read the printed version for this tutorial
                 // but we don't encourage you to do the same in your indexer. It's up to you
