@@ -1,13 +1,15 @@
 use clap::Parser;
-use futures::StreamExt;
+use near_lake_framework::near_indexer_primitives::types::AccountId;
+use near_lake_framework::near_indexer_primitives::views::{
+    StateChangeValueView, StateChangeWithCauseView,
+};
 use near_lake_framework::LakeConfig;
-use std::str::FromStr;
 
 #[derive(Parser)]
 #[clap(author = "Near Inc. <hello@nearprotocol.com")]
 pub(crate) struct Opts {
     #[clap(long, short)]
-    pub accounts: String,
+    pub accounts: Vec<AccountId>,
     #[clap(long, short)]
     pub block_height: u64,
     #[clap(subcommand)]
@@ -25,22 +27,6 @@ async fn main() -> Result<(), tokio::io::Error> {
     // Read the args passed to the application from commmand-line
     let opts: Opts = Opts::parse();
 
-    // Store the block height for later use
-    let start_block_height = opts.block_height;
-
-    // Create a list of account names string to watch
-    // We parse them with near-account in order to
-    // throw an error if account name is invalid
-    let watching_list: Vec<String> = opts
-        .accounts
-        .split(',')
-        .map(|elem| {
-            near_lake_framework::near_indexer_primitives::types::AccountId::from_str(elem)
-            .expect("AccountId is invalid")
-            .to_string()
-        })
-        .collect();
-
     // Inform about indexer is being started and what accounts we're watching for
     eprintln!(
         "Starting indexer transaction watcher for accounts: \n {:#?}",
@@ -55,23 +41,21 @@ async fn main() -> Result<(), tokio::io::Error> {
         s3_bucket_name: match opts.chain_id {
             ChainId::Mainnet => "near-lake-data-mainnet",
             ChainId::Testnet => "near-lake-data-testnet",
-        }.to_string(),
+        }
+        .to_string(),
         // Passing the S3 bucket region name
         s3_region_name: "eu-central-1".to_string(),
         // And saying from which block height to start indexing
-        start_block_height,
+        start_block_height: opts.block_height,
     };
 
     // Instantiating the stream
-    let stream = near_lake_framework::streamer(config);
-
-    // Defining how the stream will be handled
-    let mut handlers = tokio_stream::wrappers::ReceiverStream::new(stream)
-        .map(|streamer_message| handle_streamer_message(streamer_message, watching_list.clone()))
-        .buffer_unordered(1usize);
+    let mut stream = near_lake_framework::streamer(config);
 
     // Finishing the boilerplate with a busy loop to actually handle the stream
-    while let Some(_handle_message) = handlers.next().await {};
+    while let Some(streamer_message) = stream.recv().await {
+        handle_streamer_message(streamer_message, opts.accounts.clone()).await;
+    }
 
     Ok(())
 }
@@ -82,7 +66,7 @@ async fn main() -> Result<(), tokio::io::Error> {
 /// in each block.
 async fn handle_streamer_message(
     streamer_message: near_lake_framework::near_indexer_primitives::StreamerMessage,
-    watching_list: Vec<String>,
+    watching_list: Vec<AccountId>,
 ) {
     // StateChanges we are looking for can be found in each shard, so we iterate over available shards
     for shard in streamer_message.shards {
@@ -97,8 +81,7 @@ async fn handle_streamer_message(
                     .expect("Failed to serialize StateChange to JSON");
                 println!(
                     "#{}. {}",
-                    streamer_message.block.header.height,
-                    changes_json["type"]
+                    streamer_message.block.header.height, changes_json["type"]
                 );
                 println!("{:#?}", changes_json);
             }
@@ -106,19 +89,20 @@ async fn handle_streamer_message(
     }
 }
 
-fn is_change_watched(
-    state_change: &near_lake_framework::near_indexer_primitives::views::StateChangeWithCauseView,
-    watching_list: &[String],
-) -> bool {
-    // StateChangeWithCauseView.value field hold the Enum
-    // Every enum variant holds the `account_id` field
-    // We do need only the value of `account_id` here
-    // and we want to avoid enum matching, so that's why we convert the `state_change` to serde_json::Value
-    let value = serde_json::to_value(state_change)
-        .expect("Failed to serialize StateChange to JSON");
-    // A little bit tricky way to get the String value withour escaping quotes
-    let account_id: String = value["change"]["account_id"].as_str().unwrap().to_string();
+fn is_change_watched(state_change: &StateChangeWithCauseView, watching_list: &[AccountId]) -> bool {
+    // get the affected account_id from state_change.value
+    // ref https://docs.rs/near-primitives/0.12.0/near_primitives/views/enum.StateChangeValueView.html
+    let account_id = match &state_change.value {
+        StateChangeValueView::AccountUpdate { account_id, .. } => account_id,
+        StateChangeValueView::AccountDeletion { account_id } => account_id,
+        StateChangeValueView::AccessKeyUpdate { account_id, .. } => account_id,
+        StateChangeValueView::AccessKeyDeletion { account_id, .. } => account_id,
+        StateChangeValueView::DataUpdate { account_id, .. } => account_id,
+        StateChangeValueView::DataDeletion { account_id, .. } => account_id,
+        StateChangeValueView::ContractCodeUpdate { account_id, .. } => account_id,
+        StateChangeValueView::ContractCodeDeletion { account_id, .. } => account_id,
+    };
 
     // check the watching_list has the affected account_id from the state_change
-    watching_list.contains(&account_id)
+    watching_list.contains(account_id)
 }
