@@ -1149,8 +1149,9 @@ dependencies = [
 
 [[package]]
 name = "near-account-id"
-version = "0.0.0"
-source = "git+https://github.com/near/nearcore?rev=5f09a3bf042b32d1ff26554433ad6449199ea02a#5f09a3bf042b32d1ff26554433ad6449199ea02a"
+version = "0.12.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5b81ee2cf429b8bc04046d94f725a4f192fe7b13f42d76649d0177fd9ea719d8"
 dependencies = [
  "borsh",
  "serde",
@@ -1158,8 +1159,9 @@ dependencies = [
 
 [[package]]
 name = "near-crypto"
-version = "0.0.0"
-source = "git+https://github.com/near/nearcore?rev=5f09a3bf042b32d1ff26554433ad6449199ea02a#5f09a3bf042b32d1ff26554433ad6449199ea02a"
+version = "0.12.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d301d3ca4f59ab69c4b8ff625e7b2ef624345f69ab651d15c5fd59382096d2b1"
 dependencies = [
  "arrayref",
  "blake2",
@@ -1184,8 +1186,9 @@ dependencies = [
 
 [[package]]
 name = "near-indexer-primitives"
-version = "0.0.0"
-source = "git+https://github.com/near/nearcore?rev=5f09a3bf042b32d1ff26554433ad6449199ea02a#5f09a3bf042b32d1ff26554433ad6449199ea02a"
+version = "0.12.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "59c3e351572f1d5259afda836fb915262e0dc9a550b0e0412b5bc69d30b0b7f8"
 dependencies = [
  "near-primitives",
  "serde",
@@ -1208,8 +1211,9 @@ dependencies = [
 
 [[package]]
 name = "near-lake-framework"
-version = "0.1.0"
-source = "git+https://github.com/near/near-lake-framework#4d9f7c0ff3abdccd1a8268dec6a8dc78a581af36"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "38c886e743674367cc66e50cc65c0f43af9b04b242e69f17d4b73b62d71c34d2"
 dependencies = [
  "anyhow",
  "aws-config",
@@ -1230,8 +1234,9 @@ dependencies = [
 
 [[package]]
 name = "near-primitives"
-version = "0.0.0"
-source = "git+https://github.com/near/nearcore?rev=5f09a3bf042b32d1ff26554433ad6449199ea02a#5f09a3bf042b32d1ff26554433ad6449199ea02a"
+version = "0.12.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ad6a0b49d322ebda81ec4fdd99dca804526539673d0b12133286e0d7934f4802"
 dependencies = [
  "borsh",
  "byteorder",
@@ -1255,8 +1260,9 @@ dependencies = [
 
 [[package]]
 name = "near-primitives-core"
-version = "0.0.0"
-source = "git+https://github.com/near/nearcore?rev=5f09a3bf042b32d1ff26554433ad6449199ea02a#5f09a3bf042b32d1ff26554433ad6449199ea02a"
+version = "0.12.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "aaae2d2271ecdb0e3d90c11724cdb46d7d5bb50838fdb3941bfc381634cf08a3"
 dependencies = [
  "base64 0.11.0",
  "borsh",
@@ -1270,8 +1276,9 @@ dependencies = [
 
 [[package]]
 name = "near-rpc-error-core"
-version = "0.0.0"
-source = "git+https://github.com/near/nearcore?rev=5f09a3bf042b32d1ff26554433ad6449199ea02a#5f09a3bf042b32d1ff26554433ad6449199ea02a"
+version = "0.12.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d5b9fd54b177a2efc1203cd605dc3369289d9c2a74ddbfdfb372feb13be38060"
 dependencies = [
  "quote",
  "serde",
@@ -1280,8 +1287,9 @@ dependencies = [
 
 [[package]]
 name = "near-rpc-error-macro"
-version = "0.0.0"
-source = "git+https://github.com/near/nearcore?rev=5f09a3bf042b32d1ff26554433ad6449199ea02a#5f09a3bf042b32d1ff26554433ad6449199ea02a"
+version = "0.12.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a38f5469f86f3c8ce0f39828f10a9c6aca2581d71a5c176a1c9be7e7eb4511a3"
 dependencies = [
  "near-rpc-error-core",
  "serde",
@@ -1290,8 +1298,9 @@ dependencies = [
 
 [[package]]
 name = "near-vm-errors"
-version = "0.0.0"
-source = "git+https://github.com/near/nearcore?rev=5f09a3bf042b32d1ff26554433ad6449199ea02a#5f09a3bf042b32d1ff26554433ad6449199ea02a"
+version = "0.12.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5092bbad4e16e48423d9be92e18b84af8e128c263df66d867a3f99c560b3cb28"
 dependencies = [
  "borsh",
  "near-account-id",
