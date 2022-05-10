@@ -3,7 +3,7 @@ use near_lake_framework::near_indexer_primitives::types::AccountId;
 use near_lake_framework::near_indexer_primitives::views::{
     StateChangeValueView, StateChangeWithCauseView,
 };
-use near_lake_framework::LakeConfig;
+use near_lake_framework::LakeConfigBuilder;
 
 #[derive(Parser)]
 #[clap(author = "Near Inc. <hello@nearprotocol.com")]
@@ -35,22 +35,16 @@ async fn main() -> Result<(), tokio::io::Error> {
 
     // NEAR Lake Framework boilerplate
     // Instantiate the config
-    let config = LakeConfig {
-        s3_endpoint: None, // means default AWS S3 endpoint
-        // Passing the S3 bucket name based on the chain_id from passed args
-        s3_bucket_name: match opts.chain_id {
-            ChainId::Mainnet => "near-lake-data-mainnet",
-            ChainId::Testnet => "near-lake-data-testnet",
-        }
-        .to_string(),
-        // Passing the S3 bucket region name
-        s3_region_name: "eu-central-1".to_string(),
-        // And saying from which block height to start indexing
-        start_block_height: opts.block_height,
+    let mut config = LakeConfigBuilder::default().start_block_height(opts.block_height);
+
+    match opts.chain_id {
+        ChainId::Mainnet => config = config.mainnet(),
+        ChainId::Testnet => config = config.testnet(),
     };
 
     // Instantiating the stream
-    let mut stream = near_lake_framework::streamer(config);
+    let mut stream =
+        near_lake_framework::streamer(config.build().expect("Failed to build LakeConfig"));
 
     // Finishing the boilerplate with a busy loop to actually handle the stream
     while let Some(streamer_message) = stream.recv().await {
