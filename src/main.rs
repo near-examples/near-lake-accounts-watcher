@@ -43,7 +43,7 @@ async fn main() -> Result<(), tokio::io::Error> {
     };
 
     // Instantiating the stream
-    let mut stream =
+    let (_, mut stream) =
         near_lake_framework::streamer(config.build().expect("Failed to build LakeConfig"));
 
     // Finishing the boilerplate with a busy loop to actually handle the stream
